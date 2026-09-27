@@ -13,7 +13,7 @@ Andy
 Rahil
 Arin
 Anya
-Arya
+Aarna
 Sid
 
 **🧱 Master Program
