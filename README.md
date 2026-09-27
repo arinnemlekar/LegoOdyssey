@@ -1,34 +1,29 @@
-Lego Odyssey — FLL Programming Repository
-Welcome, Lego Odyssey!
+**Lego Odyssey — FLL Programming Repository
+**Welcome, Lego Odyssey!
 
 This is our team's GitHub repository for storing, sharing, and backing up our FLL robot programs.
 
 Our goal is to keep everyone's work organized so that teammates and coaches can easily find programs, compare different strategies, and build on each other's ideas.
 
-👥 Our Team
+**👥 Our Team
+**
 Mukund
-
 Andy
-
 Rahil
-
 Arin
-
 Anya
-
 Arya
-
 Sid
 
-🧱 Master Program
+**🧱 Master Program
 Our current master program is:
 
 TeamOdessey_092626.py
 
 This file is the common starting point for our team's programs.
 
-⚠️ Important
-Always start new work from the latest Master Program.
+**⚠️ Important
+**Always start new work from the latest Master Program.
 
 Do not use an old copy of the Master Program saved on your computer.
 
@@ -48,17 +43,19 @@ Start coding and testing.
 
 Do not directly modify the Master Program.
 
-📝 File Naming Convention
+**📝 File Naming Convention
+
 Every program should follow this format:
 
-FirstName(Partner)_YYYYMMDD_FileDescription.py
+_FirstName(Partner)_YYYYMMDD_FileDescription.py
 
-Individual work
+**Individual work**
+
 Mukund_20260927_Mission01.py
 Andy_20260927_Mission02.py
 Rahil_20260927_Mission03.py
 
-Partner work
+**Partner work
 If two teammates are working together, include both names:
 
 MukundAndy_20260927_Mission01.py
@@ -84,7 +81,7 @@ The filename should make it clear:
 
 Who worked on it → When → What it is
 
-🚫 Don't Overwrite Someone Else's Work
+**🚫 Don't Overwrite Someone Else's Work**
 If someone has already uploaded a program, don't modify their file and save it under their name.
 
 Make your own copy instead.
@@ -99,7 +96,7 @@ Mukund_20260927_Mission03.py
 
 This keeps everyone's work available for the team to review and compare.
 
-💻 Git Workflow
+**💻 Git Workflow
 You don't need to learn everything about Git.
 
 For this project, we mainly need a few commands.
@@ -135,16 +132,15 @@ git commit -m "Add Mission 1 program"
 
 Try to make the message describe what you changed.
 
-Examples:
+**Examples:
 
 git commit -m "Test new attachment"
-
 git commit -m "Improve Mission 3 alignment"
 
-Upload your work
+**Upload your work
 git push
 
-🔄 Our Normal Workflow
+**🔄 Our Normal Workflow
 For most robotics sessions, follow these steps:
 
 1. git pull
@@ -186,7 +182,7 @@ Push your changes.
 
 This gives the entire team a backup of your work.
 
-⭐ The Most Important Rules
+**⭐ The Most Important Rules
 Always start from the latest Master Program.
 
 Never directly modify the Master Program for your own work.
@@ -199,9 +195,9 @@ Upload your work at the end of each robotics session.
 
 If you're working with a partner, include both names.
 
-🚀 Have Fun!
+**🚀 Have Fun!**
 Try different ideas. Test different strategies. Don't be afraid to fail — that's how we figure out what works.
 
-Most importantly, share your work and help the whole team get better.
-
+**Most importantly, share your work and help the whole team get better.
+**
 Go Lego Odyssey! 🤖🚀
