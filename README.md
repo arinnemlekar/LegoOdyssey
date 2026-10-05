@@ -103,8 +103,8 @@ You don't need to learn everything about Git.
 For this project, we mainly need a few commands.
 
 First time only: Clone the repository
-git clone https://github.com/arinnemlekar/LegoOdyssey.git
-
+**git clone https://github.com/arinnemlekar/LegoOdyssey.git
+**
 Then enter the repository:
 
 cd LegoOdyssey
