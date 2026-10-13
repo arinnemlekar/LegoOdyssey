@@ -1,0 +1,295 @@
+from pybricks.hubs import PrimeHub
+from pybricks.pupdevices import Motor, ColorSensor, UltrasonicSensor
+from pybricks.parameters import Button, Color, Direction, Port, Side, Stop, Icon
+from pybricks.robotics import DriveBase
+from pybricks.tools import wait, Matrix
+
+hub = PrimeHub()
+hub.system.set_stop_button((Button.BLUETOOTH))
+
+# Robot configuration
+motorattachmentleft = Motor(Port.A)
+motorattachmentright = Motor(Port.E)
+motorattachmentleft.control.limits(1110, 20000, 200) # speed, acceleration, torque
+motorattachmentright.control.limits(1110, 20000, 200)
+
+motordriveleft = Motor(Port.F, Direction.COUNTERCLOCKWISE)
+motordriveright = Motor(Port.B)
+drivebase = DriveBase(motordriveleft, motordriveright, wheel_diameter = 56, axle_track = 144)
+drivebase.use_gyro(True)
+print(drivebase.settings(), drivebase.heading_control.pid())
+drivebase.settings(600, 500, 300, 250) # straight_speed, straight_acceleration, turn_rate, turn_acceleration
+drivebase.heading_control.pid(21000, 2000, 1000, 2, 7) # kp, ki, kd, integral_deadzone, integral_rate
+
+# Wait for IMU to calibrate
+hub.light.on(Color.RED)
+while not hub.imu.ready(): pass
+hub.light.on(Color.MAGENTA)
+
+# ================================ Helper functions ================================
+
+def stopmotors() -> None:
+    """Stops all motors to coast.
+
+    """
+
+    motorattachmentleft.stop()
+    motorattachmentright.stop()
+    drivebase.stop()
+
+def turnto(angle: Number, radius: Number = 0, then: Stop = Stop.HOLD) -> None:
+    """Turns to the specified absolute angle.
+
+    Arguments:
+        angle (Number, deg): The target angle
+        radius (Number, mm): The radius of the curve
+        then (Stop): What to do after finishing the movement
+
+    """
+
+    angletoturn: Number = angle - hub.imu.heading()
+    if radius == 0: drivebase.turn(angletoturn, then = then)
+    else: drivebase.curve(radius, -angletoturn if radius < 0 else angletoturn, then = then)
+
+def initrun(angle: Number) -> None:
+    """Starts the run by ramming backward into the wall.
+
+    Arguments:
+        angle (Number, deg): The angle the robot is initially facing
+
+    """
+
+    hub.system.set_stop_button((Button.CENTER))
+
+    # Drive backwards a bit, unregulated
+    motordriveleft.dc(-50)
+    motordriveright.dc(-50)
+    wait(300)
+    drivebase.brake()
+
+    # Reset angles
+    motordriveleft.reset_angle(0)
+    motordriveright.reset_angle(0)
+    drivebase.reset()
+    hub.imu.reset_heading(angle)
+    motorattachmentleft.reset_angle(0)
+    motorattachmentright.reset_angle(0)
+
+def catcherr(err: BaseException) -> bool:
+    stopmotors()
+
+    print(repr(err))
+
+    if isinstance(err, SystemExit) and not any(hub.buttons.pressed()):
+        # If a SystemExit is triggered but no button was pressed on the hub,
+        # it means you clicked the abort button in the IDE
+
+        hub.speaker.beep(50, 50)
+        return True
+
+    hub.light.on(Color.RED)
+    hub.speaker.beep(100, 50)
+    return False
+
+def batterypercent() -> Number:
+    v = hub.battery.voltage() / 1000.0
+    c = -59 * v ** 2 + 1015.9 * v - 4271
+    return round(c)
+
+def batteryinfo() -> None:
+    hub.system.set_stop_button((Button.CENTER))
+    hub.display.text("%{}".format(batterypercent()))
+
+# ================================ Run code ================================
+
+def run1() -> None:
+    global runindex
+
+    initrun(1)
+
+    # <<<< Your code for run 1 goes here <<<<
+
+motorattachmentright.run_angle(speed=500, rotation_angle=46)
+drivebase.straight(395)
+motorattachmentright.run_angle(speed=9999, rotation_angle=35)
+drivebase.settings(100, 100, 200, 150)
+drivebase.straight(-145)
+turnto(18)
+motorattachmentright.run_angle(speed=9999, rotation_angle=-76)
+motorattachmentright.run_angle(speed=9999, rotation_angle=150)
+drivebase.settings(600, 500, 300, 250)
+drivebase.straight(-50)
+turnto(-20)
+drivebase.straight(370)
+turnto(30)
+drivebase.straight(-95)
+turnto(-79)
+turnto(41)
+drivebase.straight(295)
+motorattachmentleft.run_angle(speed= 9999, rotation_angle= 130)
+motorattachmentleft.run_angle(speed= 9999, rotation_angle= -130)
+drivebase.straight(-200)
+turnto(-67)
+drivebase.straight(320)
+turnto(40)
+drivebase.settings(250, 200, 300, 250)
+drivebase.straight(450)
+drivebase.settings(600, 500, 300, 250)
+drivebase.straight(-100)
+
+runindex += 1
+
+def run2() -> None:
+    global runindex
+
+    initrun(2)
+
+
+    # <<<< Your code for run 2 goes here <<<<
+
+runindex += 1
+
+def run3() -> None:
+    global runindex
+
+    initrun(0)
+
+    # <<<< Your code for run 3 goes here <<<<
+
+    runindex += 1
+
+# ================================ Image bitmaps ================================
+
+digits = [
+    Matrix([[0,1,1,1,0],
+            [0,1,0,1,0],
+            [0,1,0,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,0,1,0,0],
+            [0,1,1,0,0],
+            [0,0,1,0,0],
+            [0,0,1,0,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,1,1,1,0],
+            [0,1,0,0,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,0,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,0,0,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,1,0,0,0],
+            [0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,1,0,0,0],
+            [0,1,1,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,0,1,0,0],
+            [0,1,0,0,0],
+            [0,1,0,0,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0]]) * 100,
+
+    Matrix([[0,1,1,1,0],
+            [0,1,0,1,0],
+            [0,1,1,1,0],
+            [0,0,0,1,0],
+            [0,1,1,1,0]]) * 100,
+]
+
+icons = {
+   "battery":  Matrix([[1,1,1,1,0],
+                       [1,0,0,1,1],
+                       [1,1,1,1,0],
+                       [0,0,0,0,0],
+                       [0,0,0,0,0]]) * 100,
+}
+
+# ================================ Master program ================================
+
+# You can add more runs by adding another entry in the list below
+runindex: int = 0
+runs = [ # [Icon, Callback]
+    [digits[1], run1],
+    [digits[2], run2],
+    [digits[3], run3],
+    # More runs here ...
+    [icons["battery"], batteryinfo]
+]
+numruns: int = len(runs)
+
+# Program is ready
+hub.speaker.beep(900, 100)
+
+while True:
+    stopmotors()
+
+    # Show selection
+    hub.light.on(Color.GREEN)
+    hub.display.icon(runs[runindex][0])
+
+    # Wait for button press
+    buttons = set()
+    while not any(buttons): buttons = hub.buttons.pressed()
+
+    if Button.CENTER in buttons:
+        # "Run selected" pressed
+
+        hub.speaker.beep(1100, 50)
+
+        # Wait for button released
+        while any(hub.buttons.pressed()): pass
+        hub.light.on(Color.WHITE)
+        hub.display.off()
+
+        try:
+            # Do selected run
+            runs[runindex][1]()
+            stopmotors()
+            hub.speaker.beep(800, 100)
+            hub.speaker.beep(2000, 100)
+
+        except BaseException as err:
+            # An error happened
+            if catcherr(err): raise # It was the abort button in the IDE, so end the program
+
+        runindex %= numruns
+        hub.system.set_stop_button((Button.BLUETOOTH))
+        while Button.CENTER in hub.buttons.pressed(): pass
+
+    elif Button.RIGHT in buttons:
+        # "Next" pressed
+        runindex = (runindex + 1) % numruns
+        wait(200)
+        hub.speaker.beep(600, 50)
+
+    elif Button.LEFT in buttons:
+        # "Previous" pressed
+        runindex = (runindex + numruns - 1) % numruns
+        wait(200)
+        hub.speaker.beep(550, 50)
