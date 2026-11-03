@@ -111,8 +111,10 @@ def run1() -> None:
 
 drivebase.straight(650)
 motorattachmentleft.run_angle(speed=9999, rotation_angle=-150)
-turnto(78) 
+turnto(70) 
 drivebase.straight(120)
+turnto(70)
+turnto(70)
 drivebase.straight(-170)
 turnto(170)
 drivebase.straight(1000)
