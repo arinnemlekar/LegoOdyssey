@@ -19,7 +19,7 @@ drivebase = DriveBase(motordriveleft, motordriveright, wheel_diameter = 56, axle
 drivebase.use_gyro(True)
 print(drivebase.settings(), drivebase.heading_control.pid())
 drivebase.settings(600, 500, 300, 250) # straight_speed, straight_acceleration, turn_rate, turn_acceleration
-drivebase.heading_control.pid(21000, 2000, 1000, 2, 7) # kp, ki, kd, integral_deadzone, integral_rate
+#drivebase.heading_control.pid(21000, 2000, 1000, 2, 7) # kp, ki, kd, integral_deadzone, integral_rate
 
 # Wait for IMU to calibrate
 hub.light.on(Color.RED)
@@ -114,7 +114,7 @@ drivebase.straight(395)
 motorattachmentright.run_angle(speed=9999, rotation_angle=35)
 drivebase.settings(100, 100, 200, 150)
 drivebase.straight(-145)
-turnto(18)
+turnto(19)
 motorattachmentright.run_angle(speed=9999, rotation_angle=-76)
 motorattachmentright.run_angle(speed=9999, rotation_angle=150)
 drivebase.settings(600, 500, 300, 250)
@@ -124,7 +124,7 @@ drivebase.straight(370)
 turnto(30)
 drivebase.straight(-95)
 turnto(-79)
-turnto(41)
+turnto(38)
 drivebase.straight(295)
 motorattachmentleft.run_angle(speed= 9999, rotation_angle= 130)
 motorattachmentleft.run_angle(speed= 9999, rotation_angle= -130)
@@ -132,11 +132,12 @@ drivebase.straight(-200)
 turnto(-67)
 drivebase.straight(320)
 turnto(40)
-drivebase.settings(250, 200, 300, 250)
+drivebase.settings(150, 100, 300, 250)
 drivebase.straight(450)
 drivebase.settings(600, 500, 300, 250)
 drivebase.straight(-100)
-
+turnto(130)
+drivebase.straight(1000)
 runindex += 1
 
 def run2() -> None:
