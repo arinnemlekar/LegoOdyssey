@@ -214,7 +214,7 @@ def drive_until_color(speed: int, threshold: int = 5) -> None:
     drivebase.brake()
 
 # ================================ Run code ================================
-# Run 1: Mission 9 & 10
+# Run 1: Mission drone survey
 def run1() -> None:
     global runindex
     
@@ -231,7 +231,7 @@ def run1() -> None:
     runindex += 1
 
 
-    #Run 2: Mission 5 & 6 & 7
+    #Run 2: Mission exploding seeds
 def run2() -> None:
     global runindex
 
