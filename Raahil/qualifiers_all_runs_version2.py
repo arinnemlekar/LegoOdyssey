@@ -311,7 +311,7 @@ def run6() -> None:
 
     runindex += 1
 
-#Mission 14: 4 items
+#loop1 forest elder + windows to the past, keystone species , humungous fungus
 def run7() -> None:
     global runindex
    # drivebase = DriveBase(motordriveleft, motordriveright, wheel_diameter = 62, axle_track = 108)
