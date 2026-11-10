@@ -16,7 +16,7 @@ motorattachmentright = Motor(Port.E)
 
 motordriveleft = Motor(Port.F, Direction.COUNTERCLOCKWISE)
 motordriveright = Motor(Port.B)
-drivebase = DriveBase(motordriveleft, motordriveright, wheel_diameter = 62, axle_track = 90)//108
+drivebase = DriveBase(motordriveleft, motordriveright, wheel_diameter = 62, axle_track = 90)#//108
 drivebase.use_gyro(True)
 
 # Wait for IMU to calibrate
@@ -233,15 +233,15 @@ def run1() -> None:
     turnto(-20)
     drivebase.straight(370)
     turnto(30)
-    drivebase.straight(-95)
+    drivebase.straight(-55)
     turnto(-79)
-    turnto(38)
-    drivebase.straight(335)
-    motorattachmentleft.run_angle(speed= 99999, rotation_angle= 135)
+    turnto(39)
+    drivebase.straight(327)
+    motorattachmentleft.run_angle(speed= 999999, rotation_angle= 145)
     motorattachmentleft.run_angle(speed= 9999, rotation_angle= -130)
-    drivebase.straight(-200)
+    drivebase.straight(-205)
     turnto(-64)
-    drivebase.straight(380)
+    drivebase.straight(370)
     turnto(40)
     drivebase.settings(300, 150, 300, 250)
     drivebase.straight(475)
