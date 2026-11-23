@@ -88,7 +88,15 @@ plus the DHT22.
 
 The first photo after a quiet period can take **30–40 seconds** to upload. The cloud AI shuts
 down when nobody is using it (that's what keeps it free), and it has to start up again first.
-Photos are always saved to the SD card, so nothing is lost if an upload fails.
+Photos are always saved to the SD card, so nothing is lost if an upload fails. The trap
+never deletes photos from the card.
+
+**Catching up:** if a photo couldn't be sent (no Wi-Fi), `log.csv` marks it `no`. The next
+time the trap wakes up with Wi-Fi, it also sends up to 5 of those older photos (oldest first,
+set by `CATCHUP_PER_WAKE` in `config.h`) and changes their `no` to `yes`. So a trap that was
+out of range catches up on its own, a few photos per animal visit. If you don't want to wait,
+take out the card and use the website's **Upload** page. The two methods never double-count
+a photo.
 
 ---
 
@@ -314,8 +322,6 @@ and open http://localhost:5000. It uses `server/animals.txt` for its animal list
 
 ## Ideas to improve it
 
-- Have the trap retry photos that missed Wi-Fi the next time it connects (`log.csv` already
-  shows which ones have `uploaded = no`).
 - Add IR LEDs and a no-IR-filter camera for night photos. Most chaparral mammals are active
   at night.
 - Add sunrise/sunset times, so the stats can show visits at dawn, during the day, at dusk, and at night.

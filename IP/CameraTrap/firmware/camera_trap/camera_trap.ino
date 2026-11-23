@@ -9,7 +9,9 @@
  *   5. Each photo is saved to the microSD card, a line is added to log.csv on
  *      the card, and the photo is uploaded to the cloud along with the time,
  *      temperature and humidity. The LED on D6 blinks after each saved photo.
- *   6. Waits for the PIR sensor to go quiet, then goes back to deep sleep.
+ *   6. Catch-up: if Wi-Fi works, also sends up to CATCHUP_PER_WAKE older photos
+ *      that log.csv says were never uploaded (taken while out of Wi-Fi range).
+ *   7. Waits for the PIR sensor to go quiet, then goes back to deep sleep.
  *
  * Same pins as the team's PIR_sensor_ESP32_LED sketch (IP folder on GitHub):
  *   PIR OUT -> D4,  LED -> D6 (through 330 ohm),  microSD = onboard slot (CS 21)
@@ -178,7 +180,8 @@ bool savePhoto(const String &path, camera_fb_t *fb) {
 }
 
 // One line per photo in /log.csv, so photos that never got uploaded still
-// have their time and weather recorded.
+// have their time and weather recorded. "no" is written as "no " (3 letters) so
+// catchUpUploads() can later change it to "yes" without rewriting the file.
 void logPhoto(const char *name, time_t capturedAt, bool uploaded) {
   bool isNew = !SD.exists("/log.csv");
   File log = SD.open("/log.csv", FILE_APPEND);
@@ -188,7 +191,7 @@ void logPhoto(const char *name, time_t capturedAt, bool uploaded) {
   if (!isnan(temperatureC)) log.printf("%.1f", temperatureC);
   log.print(",");
   if (!isnan(humidityPct)) log.printf("%.1f", humidityPct);
-  log.printf(",%s\n", uploaded ? "yes" : "no");
+  log.printf(",%s\n", uploaded ? "yes" : "no ");
   log.close();
 }
 
@@ -202,7 +205,10 @@ bool waitForWiFi() {
   return true;
 }
 
-bool uploadPhoto(const char *name, camera_fb_t *fb, time_t capturedAt) {
+// Sends one photo. Returns the HTTP code: 200 = the server has it (it also says
+// 200 if it already had this photo), below 0 = couldn't reach the server.
+int sendPhoto(const char *name, const uint8_t *buf, size_t len, time_t capturedAt,
+              float tempC, float humidity) {
   HTTPClient http;
   WiFiClientSecure secureClient;   // for https:// (the cloud)
   WiFiClient plainClient;          // for http:// (the laptop server)
@@ -218,17 +224,96 @@ bool uploadPhoto(const char *name, camera_fb_t *fb, time_t capturedAt) {
   http.addHeader("X-Device-Id", DEVICE_ID);
   http.addHeader("X-Trap-Key", TRAP_KEY);
   http.addHeader("X-Photo-Name", name);
-  if (capturedAt > 0)        http.addHeader("X-Captured-At", String((long)capturedAt));
-  if (!isnan(temperatureC))  http.addHeader("X-Temperature-C", String(temperatureC, 1));
-  if (!isnan(humidityPct))   http.addHeader("X-Humidity", String(humidityPct, 1));
-  int code = http.POST(fb->buf, fb->len);
+  if (capturedAt > 0)   http.addHeader("X-Captured-At", String((long)capturedAt));
+  if (!isnan(tempC))    http.addHeader("X-Temperature-C", String(tempC, 1));
+  if (!isnan(humidity)) http.addHeader("X-Humidity", String(humidity, 1));
+  int code = http.POST((uint8_t *)buf, len);
   if (code == 200) {
-    Serial.printf("Server says: %s\n", http.getString().c_str());
+    Serial.printf("%s -> server says: %s\n", name, http.getString().c_str());
   } else {
-    Serial.printf("Upload failed, HTTP code %d\n", code);
+    Serial.printf("%s -> upload failed, HTTP code %d\n", name, code);
   }
   http.end();
-  return code == 200;
+  return code;
+}
+
+bool uploadPhoto(const char *name, camera_fb_t *fb, time_t capturedAt) {
+  return sendPhoto(name, fb->buf, fb->len, capturedAt, temperatureC, humidityPct) == 200;
+}
+
+// ---------- Catch-up uploads ----------
+// Photos taken while the trap was out of Wi-Fi range are marked "no" in log.csv.
+// Whenever Wi-Fi works, send up to CATCHUP_PER_WAKE of them (oldest first) and
+// change their "no " to "yes". The server recognises photos it already has, so
+// a photo that was also uploaded from the website is never counted twice.
+// "logDone" (saved in flash) remembers how far into log.csv everything is
+// finished, so we don't re-read the whole file on every wake-up.
+float cellToFloat(const String &cell) {
+  return cell.length() ? cell.toFloat() : NAN;
+}
+
+void catchUpUploads() {
+  if (!sdOk || CATCHUP_PER_WAKE <= 0 || WiFi.status() != WL_CONNECTED) return;
+  File log = SD.open("/log.csv", "r+");
+  if (!log) return;
+
+  prefs.begin("trap", false);
+  uint32_t done = prefs.getUInt("logDone", 0);
+  if (done > log.size()) done = 0;   // a different card or a new log file
+  log.seek(done);
+
+  int sent = 0;
+  bool stop = false;
+  while (!stop && sent < CATCHUP_PER_WAKE && log.available()) {
+    uint32_t lineStart = log.position();
+    String line = log.readStringUntil('\n');   // the '\n' itself is not included
+    uint32_t lineEnd = log.position();
+
+    int c1 = line.indexOf(',');
+    int c2 = line.indexOf(',', c1 + 1);
+    int c3 = line.indexOf(',', c2 + 1);
+    int c4 = line.indexOf(',', c3 + 1);
+    String flag = c4 > 0 ? line.substring(c4 + 1) : "";
+    flag.trim();
+
+    if (flag == "no" && !line.startsWith("photo,")) {
+      String name = line.substring(0, c1);
+      time_t stamp = (time_t)line.substring(c1 + 1, c2).toInt();
+      float tempC = cellToFloat(line.substring(c2 + 1, c3));
+      float humidity = cellToFloat(line.substring(c3 + 1, c4));
+
+      File photo = SD.open("/" + name, FILE_READ);
+      size_t len = photo ? photo.size() : 0;
+      uint8_t *buf = len ? (uint8_t *)ps_malloc(len) : nullptr;
+      bool readOk = buf && photo.read(buf, len) == len;
+      if (photo) photo.close();
+
+      if (readOk) {
+        sent++;
+        int code = sendPhoto(name.c_str(), buf, len, stamp, tempC, humidity);
+        if (code == 200) {
+          // Overwrite "no " with "yes". (Older logs wrote just "no", with no room
+          // for "yes"; leave those alone — the server ignores repeats anyway.)
+          if (line.length() - (c4 + 1) >= 3) {
+            log.seek(lineStart + c4 + 1);
+            log.print("yes");
+            log.seek(lineEnd);
+          }
+        } else if (code < 0 || code >= 500 || code == 401 || code == 403 || code == 429) {
+          stop = true;   // no connection, wrong trap key, or server trouble: try again next time
+        }
+        // Any other answer (e.g. 400 = not a real photo) will never work, so move on.
+        // A team member can still upload it from the website's Upload page.
+      }
+      // A missing or unreadable photo file can't be sent either, so move on.
+      free(buf);
+    }
+    if (!stop) done = lineEnd;
+  }
+  log.close();
+  prefs.putUInt("logDone", done);
+  prefs.end();
+  if (sent) Serial.printf("Catch-up: tried %d older photo(s)\n", sent);
 }
 
 // ---------- Sleep ----------
@@ -282,6 +367,7 @@ void setup() {
     }
     Serial.println(clockIsSet() ? "Clock set from internet." : "WARNING: clock not set (no Wi-Fi?)");
     readClimate();
+    catchUpUploads();
     Serial.println("Trap armed. Waiting for motion...");
     goToSleep();
   }
@@ -340,6 +426,7 @@ void setup() {
 
   prefs.putUInt("count", counter);
   prefs.end();
+  catchUpUploads();   // only runs if Wi-Fi is connected
   goToSleep();
 }
 

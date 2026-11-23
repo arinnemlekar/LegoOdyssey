@@ -30,5 +30,10 @@
 // is using it and can take ~30-40 seconds to wake up for the first photo.
 #define UPLOAD_TIMEOUT_MS  60000
 
+// Each time Wi-Fi works, also send up to this many older photos that never got
+// uploaded (log.csv says "no"). More = catches up faster but uses more battery.
+// 0 turns catch-up off.
+#define CATCHUP_PER_WAKE   5
+
 // Max time to wait for the PIR sensor to calm down before sleeping again.
 #define PIR_SETTLE_MAX_MS  30000
