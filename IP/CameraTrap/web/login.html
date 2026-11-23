@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<main class="login">
+  <img src="/img/logo.png" alt="Lego Odyssey logo">
+  <h1>Camera Trap</h1>
+  <p class="muted">Team members only. Ask your coach for a username and password.</p>
+  <form id="form" class="panel" onsubmit="event.preventDefault()">
+    <label>Username<br><input id="username" autocomplete="username" required autofocus></label>
+    <label>Password<br><input id="password" type="password" autocomplete="current-password" required></label>
+    <p id="error" class="error" hidden></p>
+    <button id="go" disabled>Loading…</button>
+  </form>
+</main>
+<script type="module" src="/js/login.js"></script>
+</body>
+</html>

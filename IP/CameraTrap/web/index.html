@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photos · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+<nav id="nav"></nav>
+<main>
+
+<h1>Sightings</h1>
+<div class="muted" id="summary">Loading…</div>
+<div class="filters">
+  <label>Trap <select id="trap"><option value="">all</option></select></label>
+  <label>Animal <select id="animal" class="cap"><option value="">any</option></select></label>
+  <label><input type="checkbox" id="hideEmpty"> hide empty photos</label>
+  <label><input type="checkbox" id="unchecked"> only photos nobody has checked</label>
+</div>
+<div class="grid" id="grid"></div>
+<p style="text-align:center"><button id="more" class="secondary" hidden>Show more</button></p>
+<p class="muted">New photos appear here automatically. Click a photo to see it full size.
+Help the AI: press <b>✓ Right</b> if it named the animal correctly, or <b>✎ Fix</b> if not. The Stats page shows how accurate it is.</p>
+</main>
+<footer>Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+<script type="module" src="/js/gallery.js"></script>
+</body>
+</html>

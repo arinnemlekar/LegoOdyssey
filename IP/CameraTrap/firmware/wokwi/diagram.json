@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "author": "Lego Odyssey FLL #75368",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-xiao-esp32-s3", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir", "top": -120, "left": -220, "attrs": { "delayTime": "3" } },
+    { "type": "wokwi-dht22", "id": "dht", "top": -150, "left": -60, "attrs": { "temperature": "21.5", "humidity": "38" } },
+    { "type": "wokwi-led", "id": "led", "top": 150, "left": -150, "attrs": { "color": "green" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 200, "left": -100, "attrs": { "value": "330" } },
+    { "type": "wokwi-microsd-card", "id": "sd", "top": -30, "left": 180, "rotate": 90, "attrs": {} }
+  ],
+  "connections": [
+    [ "pir:VCC", "esp:3V3", "red", [] ],
+    [ "pir:GND", "esp:GND", "black", [] ],
+    [ "pir:OUT", "esp:D4", "orange", [] ],
+    [ "dht:VCC", "esp:3V3", "red", [] ],
+    [ "dht:GND", "esp:GND", "black", [] ],
+    [ "dht:SDA", "esp:D1", "blue", [] ],
+    [ "esp:D6", "r1:2", "green", [] ],
+    [ "r1:1", "led:A", "green", [] ],
+    [ "led:C", "esp:GND", "black", [] ],
+    [ "sd:VCC", "esp:3V3", "red", [] ],
+    [ "sd:GND", "esp:GND", "black", [] ],
+    [ "sd:SCK", "esp:D8", "purple", [] ],
+    [ "sd:DO", "esp:D9", "gray", [] ],
+    [ "sd:DI", "esp:D10", "white", [] ],
+    [ "sd:CS", "esp:D3", "yellow", [] ]
+  ],
+  "dependencies": {}
+}

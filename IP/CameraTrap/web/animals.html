@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animals · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+<nav id="nav"></nav>
+<main>
+
+<h1>Animals the AI looks for</h1>
+<p class="muted">The AI compares every photo with each animal on this list and picks the best match.
+Add the animals that live near your traps. One per line. Lines starting with # are ignored.</p>
+<div class="panel">
+  <textarea id="text" rows="22" style="width:100%; font-family: ui-monospace, monospace; font-size: 14px" spellcheck="false"></textarea>
+  <p class="muted" style="font-size:13px">Tips: use simple names (<i>raccoon</i>, not <i>Procyon lotor</i>).
+  If the AI mixes two animals up, add a short description after a <b>|</b>, for example
+  <code>opossum | a gray possum with a pointed white face</code>. The part before the | is the name shown on the website.
+  Changes are used for new photos within about a minute.</p>
+  <p id="status" hidden></p>
+  <button id="save">Save list</button> <span class="muted" id="updated"></span>
+</div>
+</main>
+<footer>Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+<script type="module" src="/js/animals.js"></script>
+</body>
+</html>

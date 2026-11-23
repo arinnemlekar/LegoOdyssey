@@ -1,0 +1,69 @@
+/* Lego Odyssey team colors: navy, green, gold */
+:root {
+  --bg: #f5f3ec; --card: #fff; --ink: #13294b; --muted: #5b6475;
+  --navy: #13294b; --green: #2e8b37; --gold: #e8b21c; --red: #b3261e;
+}
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+
+nav { background: var(--navy); border-bottom: 4px solid var(--gold); padding: 8px 16px;
+      display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; min-height: 64px; }
+nav a { color: #e6ecf5; text-decoration: none; }
+nav a.on { color: #fff; font-weight: 600; border-bottom: 2px solid var(--gold); }
+nav .brand { display: flex; align-items: center; gap: 10px; color: #fff; margin-right: 14px; }
+nav .brand img { width: 44px; height: 44px; border-radius: 50%; background: #fff; }
+nav .brand b { font-size: 1.1em; letter-spacing: .5px; }
+nav .brand small { display: block; color: var(--gold); font-size: 12px; }
+nav .who { margin-left: auto; color: #c9d3e3; font-size: 14px; }
+nav .who .link { color: var(--gold); }
+
+main { padding: 8px 16px 40px; max-width: 1200px; margin: 0 auto; }
+main a { color: var(--green); }
+h1 { margin: 12px 0 6px; font-size: 1.6em; }
+footer { text-align: center; padding: 16px; color: var(--muted); font-size: 13px; }
+.muted { color: var(--muted); }
+.note { font-size: 12px; margin-bottom: 0; }
+.cap { text-transform: capitalize; }
+.panel { background: var(--card); border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px #0002; margin-bottom: 16px; }
+.error { background: #fde2e1; color: #8a1c17; padding: 8px 12px; border-radius: 6px; }
+.ok { background: #e2f4e4; color: #1d5c25; padding: 8px 12px; border-radius: 6px; }
+table { border-collapse: collapse; }
+th, td { text-align: left; padding: 4px 12px 4px 0; vertical-align: top; }
+.table-wrap { overflow-x: auto; }
+input, select, textarea, button { font: inherit; padding: 5px 8px; }
+button { background: var(--green); color: #fff; border: 0; border-radius: 5px; padding: 6px 14px; cursor: pointer; }
+button.secondary { background: #e7ebf1; color: var(--ink); }
+button.danger { background: var(--red); }
+button.link { background: none; padding: 0 4px; text-decoration: underline; color: var(--green); }
+button:disabled { opacity: .5; cursor: default; }
+
+/* Gallery */
+.filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 8px 0 16px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.card { background: var(--card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px #0002; display: flex; flex-direction: column; }
+.card img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; background: #dde2e8; }
+.card .info { padding: 8px 10px; flex: 1; }
+.card .label { font-weight: 600; text-transform: capitalize; }
+.card.empty .label { color: #888; }
+.card .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.card .review { padding: 6px 10px 10px; font-size: 13px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.card .review button { padding: 3px 10px; font-size: 13px; }
+.badge { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e2f4e4; color: #1d5c25; }
+.badge.fixed { background: #fff4d6; color: #7a5800; }
+
+/* Stats */
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.chart h3 { margin: 0 0 8px; font-size: 1.05em; }
+.row { display: grid; grid-template-columns: 9.5em 1fr 2.5em; gap: 6px; align-items: center; font-size: 13px; margin: 2px 0; }
+.track { background: #eee; border-radius: 3px; height: 14px; }
+.fill { background: var(--green); height: 100%; border-radius: 3px; }
+.n { text-align: right; color: var(--muted); }
+.big { font-size: 2em; font-weight: 700; color: var(--green); }
+
+/* Login */
+.login { max-width: 360px; margin: 8vh auto; text-align: center; }
+.login img { width: 160px; border-radius: 50%; }
+.login form { display: grid; gap: 10px; text-align: left; margin-top: 12px; }
+.login input { width: 100%; }
+
+#map { height: 65vh; min-height: 320px; border-radius: 8px; box-shadow: 0 1px 3px #0002; }

@@ -1,0 +1,6 @@
+# torch is installed separately in the Dockerfile (CPU-only version, much smaller).
+flask>=3.0
+gunicorn>=22.0
+firebase-admin>=6.5
+transformers>=4.40,<5
+pillow>=10.0

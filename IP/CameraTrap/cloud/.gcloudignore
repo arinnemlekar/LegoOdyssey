@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+admin_tool.py
+*.json
