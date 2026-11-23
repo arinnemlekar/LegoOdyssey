@@ -37,3 +37,11 @@
 
 // Max time to wait for the PIR sensor to calm down before sleeping again.
 #define PIR_SETTLE_MAX_MS  30000
+
+// ----- Simulator (Wokwi) -----
+// Uncomment the next line ONLY to build for the Wokwi simulator (see ../wokwi/README.md).
+// In simulator mode the trap uses Wokwi's Wi-Fi, built-in test photos, and the
+// test trap below instead of the real one, so test photos never mix with real data.
+// #define SIMULATOR
+#define SIM_DEVICE_ID  "test-trap"
+#define SIM_TRAP_KEY   "YOUR_TEST_TRAP_KEY"

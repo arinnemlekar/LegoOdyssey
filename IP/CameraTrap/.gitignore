@@ -3,3 +3,4 @@ firmware/camera_trap/config.h
 .firebase/
 __pycache__/
 *.exe
+firmware/wokwi/build/

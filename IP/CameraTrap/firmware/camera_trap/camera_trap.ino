@@ -25,6 +25,10 @@
  *
  * Note: the Serial Monitor disconnects while the board sleeps (the USB port
  * turns off). It reconnects each time motion wakes it up.
+ *
+ * SIMULATOR: uncomment "#define SIMULATOR" in config.h to run this sketch in the
+ * Wokwi simulator (see ../wokwi/README.md). Wokwi has no camera, so the trap
+ * "takes" built-in test photos instead, and uses the test trap ID and key.
  */
 
 #include "esp_camera.h"
@@ -41,11 +45,28 @@
 #include "config.h"
 #include "google_roots.h"
 
+#ifdef SIMULATOR
+  #include "sim_photos.h"
+  // Wokwi's simulated Wi-Fi, and the test trap (so test photos stay out of real data).
+  #undef  WIFI_SSID
+  #undef  WIFI_PASSWORD
+  #undef  DEVICE_ID
+  #undef  TRAP_KEY
+  #define WIFI_SSID      "Wokwi-GUEST"
+  #define WIFI_PASSWORD  ""
+  #define DEVICE_ID      SIM_DEVICE_ID
+  #define TRAP_KEY       SIM_TRAP_KEY
+#endif
+
 // ---------- Pins ----------
 #define PIR_PIN        GPIO_NUM_5    // D4: PIR sensor output (must be an RTC pin to wake from sleep)
 #define LED_PIN        43            // D6: LED that blinks after each saved photo (HIGH = on)
 #define DHT_PIN        2             // D1: DHT22 data
-#define SD_CS_PIN      21            // onboard microSD slot (uses SPI pins 7, 8, 9 = D8, D9, D10)
+#ifdef SIMULATOR
+  #define SD_CS_PIN    4             // D3: Wokwi's XIAO has no Sense add-on, so its SD card hangs off D3
+#else
+  #define SD_CS_PIN    21            // onboard microSD slot (uses SPI pins 7, 8, 9 = D8, D9, D10)
+#endif
 #define LED_BLINK_MS   150           // keep it short so the light doesn't scare animals
 
 // XIAO ESP32S3 Sense camera pins
@@ -75,6 +96,27 @@ float temperatureC = NAN;
 float humidityPct  = NAN;
 
 // ---------- Camera ----------
+#ifdef SIMULATOR
+// No camera in the simulator: each wake-up "photographs" the next test photo.
+RTC_DATA_ATTR int simVisit = 0;   // survives deep sleep
+camera_fb_t simFrame = {};
+
+bool startCamera() {
+  const SimPhoto &photo = SIM_PHOTOS[simVisit % SIM_PHOTO_COUNT];
+  simFrame.buf = (uint8_t *)photo.data;
+  simFrame.len = photo.len;
+  Serial.printf("SIMULATOR: no camera, using test photo \"%s\"\n", photo.name);
+  return true;
+}
+camera_fb_t *takePhoto()          { return &simFrame; }
+void returnPhoto(camera_fb_t *fb) {}
+void stopCamera()                 { simVisit++; }
+
+#else
+camera_fb_t *takePhoto()          { return esp_camera_fb_get(); }
+void returnPhoto(camera_fb_t *fb) { esp_camera_fb_return(fb); }
+void stopCamera()                 { esp_camera_deinit(); }
+
 bool startCamera() {
   camera_config_t config = {};
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -122,6 +164,7 @@ bool startCamera() {
   }
   return true;
 }
+#endif
 
 // ---------- Temperature & humidity ----------
 void readClimate() {
@@ -285,6 +328,7 @@ void catchUpUploads() {
       File photo = SD.open("/" + name, FILE_READ);
       size_t len = photo ? photo.size() : 0;
       uint8_t *buf = len ? (uint8_t *)ps_malloc(len) : nullptr;
+      if (!buf && len) buf = (uint8_t *)malloc(len);   // no PSRAM (e.g. simulator)
       bool readOk = buf && photo.read(buf, len) == len;
       if (photo) photo.close();
 
@@ -321,7 +365,7 @@ void goToSleep() {
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   if (sdOk) SD.end();
-  esp_camera_deinit();
+  stopCamera();
   digitalWrite(LED_PIN, LOW);
 
   // Wait until the PIR sensor stops reporting motion, otherwise we'd
@@ -354,7 +398,11 @@ void setup() {
 
   // Start Wi-Fi now; it connects in the background while we take photos.
   WiFi.mode(WIFI_STA);
+#ifdef SIMULATOR
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD, 6);
+#else
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+#endif
 
   if (!startCamera()) goToSleep();
   sdOk = startSD();
@@ -379,7 +427,7 @@ void setup() {
   bool clockSyncStarted = false;
 
   for (int i = 0; i < BURST_COUNT; i++) {
-    camera_fb_t *fb = esp_camera_fb_get();
+    camera_fb_t *fb = takePhoto();
     if (!fb) {
       Serial.println("Photo capture failed");
       continue;
@@ -394,7 +442,7 @@ void setup() {
 
     counter++;
     char name[32];
-    snprintf(name, sizeof(name), "%s_%06u.jpg", DEVICE_ID, counter);
+    snprintf(name, sizeof(name), "%s_%06u.jpg", DEVICE_ID, (unsigned)counter);
     Serial.printf("Took %s (%u bytes)\n", name, fb->len);
 
     if (sdOk && savePhoto(String("/") + name, fb)) {
@@ -420,7 +468,7 @@ void setup() {
     }
     if (sdOk) logPhoto(name, capturedAt, uploaded);
 
-    esp_camera_fb_return(fb);
+    returnPhoto(fb);
     if (i < BURST_COUNT - 1) delay(BURST_DELAY_MS);
   }
 

@@ -19,7 +19,7 @@ website shows the photos, charts, and a map. Only team members can log in.
 
 | Folder | What's in it |
 |--------|------|
-| `firmware/` | Code for the trap (XIAO ESP32S3 Sense) |
+| `firmware/` | Code for the trap (XIAO ESP32S3 Sense), plus `wokwi/` to test it in a simulator |
 | `cloud/` | The upload service with the AI (runs on Google Cloud Run), plus `admin_tool.py` for the coach |
 | `web/` | The team website (runs on Firebase Hosting) |
 | `firestore.rules`, `storage.rules` | Who can see and change what — these keep the data private |
@@ -65,6 +65,9 @@ plus the DHT22.
   closed box well above the air temperature.
 
 ### Programming the trap
+
+**No board yet, or want to test first?** Run the trap program in the free Wokwi simulator in
+your browser. See [`firmware/wokwi/README.md`](firmware/wokwi/README.md).
 
 1. Install the [Arduino IDE](https://www.arduino.cc/en/software).
 2. Go to **File → Preferences → Additional boards manager URLs** and add
