@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// Photos are uploaded only by the Cloud Run service. Team members can view them;
+// only admins can delete them.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{folder}/{file} {
+      allow read: if request.auth != null && (folder == 'photos' || folder == 'thumbs');
+      allow delete: if request.auth != null && request.auth.token.role == 'admin';
+      allow create, update: if false;
+    }
+  }
+}

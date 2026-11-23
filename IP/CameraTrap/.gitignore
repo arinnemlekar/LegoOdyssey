@@ -1,0 +1,5 @@
+# Holds the Wi-Fi password and trap key — never put it on GitHub
+firmware/camera_trap/config.h
+.firebase/
+__pycache__/
+*.exe

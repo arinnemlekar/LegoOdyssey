@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Stats · Camera Trap{% endblock %}
+{% block head %}
+<style>
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .chart h3 { margin: 0 0 8px; font-size: 1.05em; }
+  .row { display: grid; grid-template-columns: 9.5em 1fr 2.5em; gap: 6px; align-items: center; font-size: 13px; margin: 2px 0; }
+  .track { background: #eee; border-radius: 3px; height: 14px; }
+  .fill { background: var(--bar); height: 100%; border-radius: 3px; }
+  .n { text-align: right; color: var(--muted); }
+</style>
+{% endblock %}
+{% macro chart(title, rows, note='') %}
+<div class="panel chart">
+  <h3>{{ title }}</h3>
+  {% if rows %}
+    {% for label, n, pct in rows %}
+    <div class="row"><span>{{ label }}</span><div class="track"><div class="fill" style="width: {{ pct }}%"></div></div><span class="n">{{ n }}</span></div>
+    {% endfor %}
+  {% else %}<p class="muted">No data yet.</p>{% endif %}
+  {% if note %}<p class="muted" style="font-size:12px; margin-bottom:0">{{ note }}</p>{% endif %}
+</div>
+{% endmacro %}
+{% block body %}
+<h1>Stats{% if animal %}: <span class="cap">{{ animal }}</span>{% endif %}</h1>
+<form method="get" style="margin-bottom:12px">
+  <label>Animal
+    <select name="animal" onchange="this.form.submit()" class="cap">
+      <option value="">all animals</option>
+      {% for a, n in species %}<option value="{{ a }}" {{ 'selected' if a == animal }}>{{ a }} ({{ n }})</option>{% endfor %}
+    </select>
+  </label>
+</form>
+<p class="muted">
+  {{ visits | length }} animal visits from {{ photo_count }} photos
+  {% if first_day %}between {{ first_day }} and {{ last_day }}{% endif %}.
+  Photos from the same trap within {{ visit_gap }} seconds count as one visit.
+</p>
+<div class="charts">
+  {{ chart('Visits by time of day', by_hour) }}
+  {{ chart('Visits by moon phase', by_moon, 'Each phase lasts about 3–4 days. If the traps ran for less than a month, some phases had fewer nights to record visits.') }}
+  {{ chart('Visits by temperature', by_temp) }}
+  {{ chart('Visits by humidity', by_hum) }}
+  {{ chart('Visits by trap', by_trap) }}
+</div>
+{% endblock %}

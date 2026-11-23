@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block head %}
+<meta http-equiv="refresh" content="30">
+<style>
+  .filters { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 8px 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px #0002; }
+  .card img { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; background: #ddd; }
+  .info { padding: 8px 10px; }
+  .label { font-weight: 600; text-transform: capitalize; }
+  .empty .label { color: #888; }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+</style>
+{% endblock %}
+{% block body %}
+<h1>Sightings</h1>
+<div class="muted">{{ total }} photos · {{ animal_total }} with animals · page refreshes every 30 s</div>
+<form class="filters" method="get">
+  <label>Trap
+    <select name="trap" onchange="this.form.submit()">
+      <option value="">all</option>
+      {% for d in devices %}<option {{ 'selected' if d == device }}>{{ d }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Animal
+    <select name="animal" onchange="this.form.submit()" class="cap">
+      <option value="">any</option>
+      {% for l in labels %}<option {{ 'selected' if l == label }}>{{ l }}</option>{% endfor %}
+    </select>
+  </label>
+  <label><input type="checkbox" name="animals" value="1" {{ 'checked' if animals_only }} onchange="this.form.submit()"> hide empty photos</label>
+</form>
+<div class="grid">
+{% for s in sightings %}
+  <div class="card {{ '' if s.is_animal else 'empty' }}">
+    <a href="/photos/{{ s.filename }}"><img src="/photos/{{ s.filename }}" loading="lazy" alt="{{ s.label }}"></a>
+    <div class="info">
+      <div class="label">{{ s.label }}{% if s.is_animal %} ({{ '%.0f' % (s.confidence * 100) }}%){% endif %}</div>
+      <div class="meta">{{ s.captured_at.replace('T', ' ') }}{% if s.time_source == 'server' %}*{% endif %} · {{ s.device }}</div>
+      <div class="meta">
+        {% if s.temperature_c is not none %}🌡 {{ '%.1f' % s.temperature_c }}°C · {% endif %}{% if s.humidity is not none %}💧 {{ '%.0f' % s.humidity }}% · {% endif %}
+        {{ moon_icon(s.moon_name) }} {{ s.moon_name or '' }}
+      </div>
+    </div>
+  </div>
+{% else %}
+  <p>No photos yet. Wave your hand in front of the trap!</p>
+{% endfor %}
+</div>
+<p class="muted">* time the photo reached the laptop (the trap's clock wasn't set yet).</p>
+{% endblock %}

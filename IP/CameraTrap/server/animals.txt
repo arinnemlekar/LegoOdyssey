@@ -1,0 +1,49 @@
+# Animals the AI should look for — San Diego chaparral and coastal sage scrub.
+# One per line. Lines starting with # are ignored.
+#
+# Use simple common names. If the AI mixes two animals up, add a short
+# description after a | , e.g.
+#   brush rabbit | a small dark brown rabbit with short ears
+# The part before | is the name shown on the website; the part after is what
+# the AI compares the photo to.
+
+# --- Predators ---
+coyote
+bobcat | a bobcat with a short bobbed tail and tufted ears
+gray fox | a gray fox with a reddish neck and a black-tipped tail
+mountain lion | a mountain lion or cougar
+long-tailed weasel
+american badger
+
+# --- Deer ---
+mule deer | a mule deer with very large ears
+
+# --- Small and medium mammals ---
+raccoon
+striped skunk
+spotted skunk | a small black skunk with white spots and broken stripes
+virginia opossum | a gray opossum with a pointed white face
+ringtail | a ringtail cat with a long black and white banded tail
+
+# --- Rabbits and hares ---
+desert cottontail | a gray-brown cottontail rabbit with a white tail
+brush rabbit | a small dark brown rabbit with short ears
+black-tailed jackrabbit | a large hare with very long black-tipped ears
+
+# --- Rodents ---
+california ground squirrel | a ground squirrel with speckled gray-brown fur
+dusky-footed woodrat | a woodrat or packrat, a brown rat with big ears
+kangaroo rat | a kangaroo rat with long back legs and a long tufted tail
+mouse | a small mouse
+
+# --- Birds that walk on the ground ---
+greater roadrunner | a roadrunner bird with a long tail and a crest
+california quail | a california quail with a curly head plume
+california thrasher | a brown thrasher bird with a long curved bill
+spotted towhee | a black and rufous towhee bird
+california scrub-jay | a blue scrub jay
+bird | a small songbird
+
+# --- Pets ---
+house cat | a domestic cat
+dog | a domestic dog

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trash · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .trash-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+  .card .reason { font-size: 13px; color: var(--muted); }
+  .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+</style>
+</head>
+<body>
+<nav id="nav"></nav>
+<main>
+<h1>Trash</h1>
+<p class="muted">Photos with no animal end up here automatically, along with blank photos and any photo someone moved to the Trash.
+Look through them before emptying the Trash: if the AI missed an animal, press <b>Restore</b> to put the photo back.</p>
+
+<div class="panel trash-bar">
+  <span id="count">Loading…</span>
+  <span id="actions">
+    <button id="empty" class="danger" hidden>Empty Trash</button>
+  </span>
+</div>
+<p id="message" hidden></p>
+
+<div class="grid" id="grid"></div>
+</main>
+<footer>Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+<script type="module" src="/js/trash.js"></script>
+</body>
+</html>

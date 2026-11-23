@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Camera Trap{% endblock %} · Lego Odyssey</title>
+<style>
+  /* Lego Odyssey team colors: navy, green, gold */
+  :root { --bg: #f5f3ec; --card: #fff; --ink: #13294b; --muted: #5b6475; --accent: #13294b; --green: #2e8b37; --gold: #e8b21c; --bar: #2e8b37; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--ink); }
+  nav { background: var(--accent); border-bottom: 4px solid var(--gold); padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: center; }
+  nav .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; margin-right: 14px; }
+  nav .brand img { width: 44px; height: 44px; border-radius: 50%; background: #fff; }
+  nav .brand b { font-size: 1.1em; letter-spacing: .5px; }
+  nav .brand small { display: block; color: var(--gold); font-size: 12px; }
+  nav a { color: #e6f2e6; text-decoration: none; }
+  nav a.on { color: #fff; font-weight: 600; border-bottom: 2px solid var(--gold); }
+  main { padding: 8px 16px 40px; max-width: 1200px; margin: 0 auto; }
+  h1 { margin: 12px 0 6px; font-size: 1.6em; }
+  .muted { color: var(--muted); }
+  main a { color: var(--green); }
+  .panel { background: var(--card); border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px #0002; margin-bottom: 16px; }
+  table { border-collapse: collapse; }
+  th, td { text-align: left; padding: 4px 12px 4px 0; vertical-align: top; }
+  .table-wrap { overflow-x: auto; }
+  input, select, textarea, button { font: inherit; padding: 5px 8px; }
+  button { background: var(--green); color: #fff; border: 0; border-radius: 5px; padding: 6px 14px; cursor: pointer; }
+  .error { background: #fde2e1; color: #8a1c17; padding: 8px 12px; border-radius: 6px; }
+  .cap { text-transform: capitalize; }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">
+    {% if has_logo() %}<img src="/static/logo.png" alt="Lego Odyssey logo">{% else %}<span style="font-size:28px">🦝</span>{% endif %}
+    <span><b>Lego Odyssey Camera Trap</b><small>FLL Team #75368</small></span>
+  </a>
+  {% set here = request.path %}
+  <a href="/" class="{{ 'on' if here == '/' }}">Photos</a>
+  <a href="/stats" class="{{ 'on' if here == '/stats' }}">Stats</a>
+  <a href="/map" class="{{ 'on' if here == '/map' }}">Map</a>
+  <a href="/traps" class="{{ 'on' if here == '/traps' }}">Traps</a>
+  <a href="/export.csv">Download CSV</a>
+</nav>
+<main>
+{% block body %}{% endblock %}
+</main>
+<footer style="text-align:center; padding:16px; color:var(--muted); font-size:13px">Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+</body>
+</html>

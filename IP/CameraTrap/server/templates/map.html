@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Map · Camera Trap{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style> #map { height: 70vh; min-height: 320px; border-radius: 8px; box-shadow: 0 1px 3px #0002; } </style>
+{% endblock %}
+{% block body %}
+<h1>Map</h1>
+{% if not markers %}
+  <p>No trap locations yet. <a href="/traps">Add GPS coordinates on the Traps page.</a></p>
+{% else %}
+<div id="map"></div>
+<p id="offline" class="error" hidden>The map needs an internet connection. Trap locations are listed below.</p>
+<div class="panel table-wrap" style="margin-top:16px">
+<table>
+  <tr><th>Trap</th><th>Location</th><th>Animal visits</th><th>Most seen</th></tr>
+  {% for m in markers %}
+  <tr><td>{{ m.name }}</td><td>{{ '%.5f, %.5f' % (m.lat, m.lon) }}</td><td>{{ m.visits }}</td>
+      <td class="cap">{% for a, n in m.top %}{{ a }} ({{ n }}){{ ', ' if not loop.last }}{% endfor %}</td></tr>
+  {% endfor %}
+</table>
+</div>
+<script>
+  const markers = {{ markers | tojson }};
+  if (typeof L === "undefined") {
+    document.getElementById("offline").hidden = false;
+    document.getElementById("map").hidden = true;
+  } else {
+    const map = L.map("map");
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const points = markers.map(m => {
+      const top = m.top.map(([a, n]) => `${esc(a)} (${n})`).join("<br>") || "no animals yet";
+      L.marker([m.lat, m.lon]).addTo(map).bindPopup(
+        `<b>${esc(m.name)}</b><br>${esc(m.habitat)}<br>${m.visits} visits<br><br>${top}`);
+      return [m.lat, m.lon];
+    });
+    map.fitBounds(points, { padding: [40, 40], maxZoom: 17 });
+  }
+</script>
+{% endif %}
+{% endblock %}

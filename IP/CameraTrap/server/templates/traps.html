@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Traps · Camera Trap{% endblock %}
+{% block body %}
+<h1>Traps</h1>
+<p class="muted">Record where each trap is placed. Photos get the trap's location when they arrive.</p>
+
+{% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+{% if unknown %}
+<div class="panel">
+  <b>Traps sending photos without a location:</b>
+  {% for d in unknown %}<a href="?new={{ d }}">{{ d }}</a>{{ ', ' if not loop.last }}{% endfor %}
+</div>
+{% endif %}
+
+<div class="panel table-wrap">
+<table>
+  <tr><th>ID</th><th>Name</th><th>Location</th><th>Habitat</th><th>Placed on</th><th>Photos</th><th>Notes</th><th></th></tr>
+  {% for t in traps %}
+  <tr>
+    <td>{{ t.device_id }}</td><td>{{ t.name }}</td>
+    <td>{% if t.latitude is not none %}{{ '%.5f' % t.latitude }}, {{ '%.5f' % t.longitude }}{% else %}<span class="muted">not set</span>{% endif %}</td>
+    <td>{{ t.habitat }}</td><td>{{ t.placed_on }}</td>
+    <td>{{ t.photos }} ({{ t.animal_photos or 0 }} animal)</td><td>{{ t.notes }}</td>
+    <td><a href="?edit={{ t.device_id }}">edit</a></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="8" class="muted">No traps yet. Add one below.</td></tr>
+  {% endfor %}
+</table>
+</div>
+
+<div class="panel">
+<h3 style="margin-top:0">{{ 'Edit ' ~ edit.device_id if edit else 'Add a trap' }}</h3>
+<form method="post" style="display:grid; gap:10px; max-width:520px">
+  <label>Device ID (same as <code>DEVICE_ID</code> in config.h)<br>
+    <input name="device_id" required value="{{ edit.device_id if edit else new_device }}" {{ 'readonly' if edit }} style="width:100%"></label>
+  <label>Name<br><input name="name" value="{{ edit.name if edit else '' }}" placeholder="Creek behind school" style="width:100%"></label>
+  <label>GPS coordinates<br>
+    <input name="coordinates" style="width:100%" placeholder="45.12345, -93.45678"
+      value="{{ ('%.6f, %.6f' % (edit.latitude, edit.longitude)) if edit and edit.latitude is not none else '' }}"></label>
+  <div class="muted" style="font-size:13px">On a phone: open Google Maps, long-press where the trap is, and copy the numbers that appear.</div>
+  <label>Habitat<br><input name="habitat" value="{{ edit.habitat if edit else '' }}" placeholder="woods / backyard / pond edge" style="width:100%"></label>
+  <label>Placed on<br><input type="date" name="placed_on" value="{{ edit.placed_on if edit else '' }}"></label>
+  <label>Notes<br><textarea name="notes" rows="2" style="width:100%" placeholder="height, direction it faces, bait used...">{{ edit.notes if edit else '' }}</textarea></label>
+  <label><input type="checkbox" name="apply_to_old" value="1"> Also set this location on photos this trap already took</label>
+  <div><button>Save trap</button></div>
+</form>
+</div>
+<p class="muted">Privacy: a trap's location may be someone's home. Keep this site on the team laptop, and round the coordinates before sharing data publicly.</p>
+{% endblock %}

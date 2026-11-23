@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .steps-row { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .step h3 { margin: 0 0 6px; font-size: 1.05em; }
+  .step p { margin: 0 0 8px; }
+  .pick { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pick label.button { background: var(--green); color: #fff; border-radius: 5px; padding: 6px 14px; cursor: pointer; }
+  .pick label.button.secondary { background: #e7ebf1; color: var(--ink); }
+  .pick input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .pick label.button:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
+  #list td, #list th { font-size: 14px; padding: 4px 14px 4px 0; white-space: nowrap; }
+  #list td.status { white-space: normal; min-width: 12em; }
+  .st-added { color: var(--green); font-weight: 600; }
+  .st-dup, .st-skip { color: var(--muted); }
+  .st-err { color: var(--red); font-weight: 600; }
+  .warn { color: #7a5800; }
+  progress { width: 100%; height: 14px; accent-color: var(--green); }
+</style>
+</head>
+<body>
+<nav id="nav"></nav>
+<main>
+<h1>Upload from the SD card</h1>
+<p class="muted">If the trap couldn't send its photos (no Wi-Fi, battery ran low), every photo is still on its SD card.
+Upload them here and they'll go through the same AI as photos sent by the trap. Photos that are already on the website are skipped automatically, so it's safe to upload the whole card.</p>
+
+<div class="steps-row">
+  <div class="panel step">
+    <h3>1. Which trap is this card from?</h3>
+    <select id="trap" style="width:100%"><option value="">Choose a trap…</option></select>
+  </div>
+  <div class="panel step">
+    <h3>2. Pick the photos</h3>
+    <p class="muted" style="font-size:14px">Put the SD card in the computer. The easiest way is to pick the whole card, so the website can also read <code>log.csv</code>, which has each photo's time and weather.</p>
+    <div class="pick">
+      <label class="button">Choose the SD card folder<input type="file" id="folder" webkitdirectory></label>
+      <label class="button secondary">Choose photos<input type="file" id="files" multiple accept=".jpg,.jpeg,.csv"></label>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="review" hidden>
+  <p id="summary"></p>
+  <p id="warnings" class="warn" hidden></p>
+  <label><input type="checkbox" id="includeSent"> Also upload photos the trap says it already sent
+    <span class="muted">(the website skips any it already has)</span></label>
+  <p style="margin-top:12px"><button id="go">Upload</button> <span id="progress-text" class="muted"></span></p>
+  <progress id="progress" value="0" max="1" hidden></progress>
+  <div class="table-wrap" style="margin-top:10px">
+    <table id="list"></table>
+  </div>
+</div>
+</main>
+<footer>Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+<script type="module" src="/js/upload.js"></script>
+</body>
+</html>

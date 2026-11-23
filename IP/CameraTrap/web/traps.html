@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traps · Lego Odyssey Camera Trap</title>
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+<nav id="nav"></nav>
+<main>
+
+<h1>Traps</h1>
+<p class="muted">Record where each trap is placed. Photos get the trap’s location when they arrive.
+New traps are set up by the coach (they need a secret key).</p>
+<div class="panel table-wrap"><table id="table"><tr><td class="muted">Loading…</td></tr></table></div>
+<div class="panel" id="editor" hidden>
+  <h3 style="margin-top:0" id="editor-title"></h3>
+  <form id="form" style="display:grid; gap:10px; max-width:520px">
+    <label>Name<br><input id="name" placeholder="Creek behind school" style="width:100%"></label>
+    <label>GPS coordinates<br><input id="coords" placeholder="45.12345, -93.45678" style="width:100%"></label>
+    <div class="muted" style="font-size:13px">On a phone: open Google Maps, long-press where the trap is, and copy the numbers that appear.
+      <button type="button" id="here" class="link">Use this device’s location</button></div>
+    <label>Habitat<br><input id="habitat" placeholder="woods / backyard / pond edge" style="width:100%"></label>
+    <label>Placed on<br><input type="date" id="placedOn"></label>
+    <label>Notes<br><textarea id="notes" rows="2" style="width:100%" placeholder="height, direction it faces, bait used..."></textarea></label>
+    <p id="error" class="error" hidden></p>
+    <div><button>Save trap</button> <button type="button" id="cancel" class="secondary">Cancel</button>
+      <button type="button" id="delete" class="danger" hidden>Delete trap</button></div>
+  </form>
+</div>
+<p class="muted">Privacy: a trap’s location may be someone’s home. Only logged-in team members can see this site.
+Round the coordinates before sharing data or maps outside the team.</p>
+</main>
+<footer>Lego Odyssey · FLL Team #75368 · A journey, a world, a better future</footer>
+<script type="module" src="/js/traps.js"></script>
+</body>
+</html>
