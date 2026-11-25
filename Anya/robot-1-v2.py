@@ -356,7 +356,7 @@ def run6() -> None:
 def run7() -> None:
     global runindex
     
-   #flip_the_rock and reaching roots
+   #flip_the_rock and reaching roots and katydid check
     drivebase.settings(300, 500, 300, 250)
     drivebase.straight(510)
     drivebase.straight(-200)
@@ -369,8 +369,12 @@ def run7() -> None:
     motorattachmentright.run_angle(1100, -60)
     motorattachmentright.run_angle(1100, -750)
     drivebase.settings(600, 500, 300, 250)
-    drivebase.straight(-880)
-    runindex +=1
+    drivebase.straight(-75)
+    motorattachmentleft.run_angle(150, 290)
+    wait(500)
+    motorattachmentleft.run_angle(160, -300)
+    drivebase.straight(-860)
+
     runindex +=1
 
 # 
