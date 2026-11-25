@@ -319,15 +319,25 @@ def run4() -> None:
 def run5() -> None:
     global runindex
 
-    #Mission drone survey
+#Mission drone survey and exploding seeds
+    
     resetangles(0)
-    drivebase.straight(715)
+    drivebase.straight(722)
     drivebase.straight(-68)
     motorattachmentleft.run_target(320,115)
     motorattachmentleft.run_target(300,-5)
-    drivebase.straight(-68)
-    motorattachmentleft.run_target(300,200)
-    drivebase.straight(-690)
+    drivebase.straight(-450)
+    turnto(0)
+    motorattachmentleft.run_target(320,125)
+    turnto(-90)
+    drivebase.straight(200)
+    turnto(-42)
+    drivebase.straight(300) # was 
+    motorattachmentright.run_target(125,180)
+    drivebase.straight(-120)
+    motorattachmentright.run_target(125,-80)
+    drivebase.settings(350,350,200,200)
+    drivebase.straight(-400)
 
 
 
@@ -337,22 +347,7 @@ def run5() -> None:
 def run6() -> None:
     global runindex
     
-    #Mission exploding seeds
-    initrun(10)
-    drivebase.settings(200, 500, 200, 200)
-
-    drivebase.straight(120)
-    turnto(48) # was 57
-    
-    drivebase.straight(435) # was 
-    motorattachmentright.run_target(125,180)
-    
   
-    drivebase.straight(-120)
-    motorattachmentright.run_target(125,-80)
-    drivebase.settings(350,350,200,200)
-    drivebase.straight(-350)
-
    
 
     runindex += 1
