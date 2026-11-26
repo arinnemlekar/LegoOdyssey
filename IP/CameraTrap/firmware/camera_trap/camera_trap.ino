@@ -6,9 +6,10 @@
  *   2. Wi-Fi starts connecting in the background.
  *   3. The camera takes BURST_COUNT photos.
  *   4. The DHT22 sensor (on D1) measures temperature and humidity.
- *   5. Each photo is saved to the microSD card, a line is added to log.csv on
- *      the card, and the photo is uploaded to the cloud along with the time,
- *      temperature and humidity. The LED on D6 blinks after each saved photo.
+ *   5. The time, temperature and humidity are written inside each photo (EXIF,
+ *      see exif.h). Each photo is saved to the microSD card, a line is added to
+ *      log.csv on the card, and the photo is uploaded to the cloud along with the
+ *      time, temperature and humidity. The LED on D6 blinks after each saved photo.
  *   6. Catch-up: if Wi-Fi works, also sends up to CATCHUP_PER_WAKE older photos
  *      that log.csv says were never uploaded (taken while out of Wi-Fi range).
  *   7. Waits for the PIR sensor to go quiet, then goes back to deep sleep.
@@ -44,6 +45,7 @@
 #include "driver/rtc_io.h"
 #include "config.h"
 #include "google_roots.h"
+#include "exif.h"
 
 #ifdef SIMULATOR
   #include "sim_photos.h"
@@ -214,12 +216,12 @@ bool startSD() {
   return true;
 }
 
-bool savePhoto(const String &path, camera_fb_t *fb) {
+bool savePhoto(const String &path, const uint8_t *buf, size_t len) {
   File file = SD.open(path, FILE_WRITE);
   if (!file) return false;
-  size_t written = file.write(fb->buf, fb->len);
+  size_t written = file.write(buf, len);
   file.close();
-  return written == fb->len;
+  return written == len;
 }
 
 // One line per photo in /log.csv, so photos that never got uploaded still
@@ -280,8 +282,8 @@ int sendPhoto(const char *name, const uint8_t *buf, size_t len, time_t capturedA
   return code;
 }
 
-bool uploadPhoto(const char *name, camera_fb_t *fb, time_t capturedAt) {
-  return sendPhoto(name, fb->buf, fb->len, capturedAt, temperatureC, humidityPct) == 200;
+bool uploadPhoto(const char *name, const uint8_t *buf, size_t len, time_t capturedAt) {
+  return sendPhoto(name, buf, len, capturedAt, temperatureC, humidityPct) == 200;
 }
 
 // ---------- Catch-up uploads ----------
@@ -445,7 +447,14 @@ void setup() {
     snprintf(name, sizeof(name), "%s_%06u.jpg", DEVICE_ID, (unsigned)counter);
     Serial.printf("Took %s (%u bytes)\n", name, fb->len);
 
-    if (sdOk && savePhoto(String("/") + name, fb)) {
+    // Write the time and weather inside the photo (EXIF). This makes a copy of
+    // the photo. If there isn't enough memory, use the photo without EXIF.
+    size_t len = fb->len;
+    uint8_t *withExif = addExif(fb->buf, &len, capturedAt, temperatureC, humidityPct, DEVICE_ID);
+    const uint8_t *photo = withExif ? withExif : fb->buf;
+    if (!withExif) Serial.println("Could not add EXIF, saving the photo without it");
+
+    if (sdOk && savePhoto(String("/") + name, photo, len)) {
       digitalWrite(LED_PIN, HIGH);   // quick blink = photo saved
       delay(LED_BLINK_MS);
       digitalWrite(LED_PIN, LOW);
@@ -461,13 +470,14 @@ void setup() {
           startClockSync();
           clockSyncStarted = true;
         }
-        uploaded = uploadPhoto(name, fb, capturedAt);
+        uploaded = uploadPhoto(name, photo, len, capturedAt);
       } else {
         Serial.println("No Wi-Fi — photo kept on SD card only");
       }
     }
     if (sdOk) logPhoto(name, capturedAt, uploaded);
 
+    free(withExif);
     returnPhoto(fb);
     if (i < BURST_COUNT - 1) delay(BURST_DELAY_MS);
   }
