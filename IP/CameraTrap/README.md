@@ -262,6 +262,10 @@ The coach's account can also delete traps.
   arrives from the trap, from the SD card, or both. SD card uploads go through
   `/api/upload-sd`, which Firebase Hosting forwards to Cloud Run, and only work for logged-in
   team members.
+- **EXIF (time and weather inside each photo):** The trap also writes the time (UTC), temperature,
+  humidity and trap ID into each JPEG's EXIF data (`firmware/camera_trap/exif.h`). Photo apps
+  show it as the date taken and description. The cloud server reads it back, so photos copied
+  off the SD card without `log.csv` still get their real time and weather.
 - **Security:** Website users must log in, and the rules in `firestore.rules` and
   `storage.rules` are enforced by Google's servers, not by the web pages. Each trap has its
   own secret key, and the cloud stores only a scrambled (hashed) copy of it. Traps upload over

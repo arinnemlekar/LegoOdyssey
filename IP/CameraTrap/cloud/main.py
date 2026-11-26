@@ -6,6 +6,9 @@ Runs on Google Cloud Run. Each trap POSTs its photos to /upload with:
     X-Captured-At     when the photo was taken (Unix time, UTC) — optional
     X-Temperature-C   from the DHT22 — optional
     X-Humidity        from the DHT22 — optional
+Newer trap firmware also writes the time and weather inside each photo (EXIF).
+This service reads them from there when the headers are missing, e.g. for SD-card
+photos uploaded without log.csv.
 
 Team members can also upload photos from a trap's SD card on the website's
 Upload page; those arrive at /api/upload-sd with the member's login token.
@@ -97,10 +100,49 @@ def header_float(name, low, high):
     return value if low <= value <= high else None
 
 
-def photo_time():
+EARLIEST = 1704067200   # 1 Jan 2024: anything earlier means the trap's clock wasn't set
+TRAP_SOFTWARE = "Lego Odyssey camera trap"   # EXIF_SOFTWARE in the firmware's exif.h
+
+
+def exif_number(value, low, high):
+    try:
+        value = float(value)
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+    return value if low <= value <= high else None
+
+
+def read_exif(image):
+    """The time and weather our trap wrote inside the photo (EXIF, see firmware/exif.h).
+    Returns None for photos from other cameras, or from older trap firmware."""
+    try:
+        exif = image.getexif()
+        if not str(exif.get(0x0131, "")).startswith(TRAP_SOFTWARE):   # Software tag
+            return None
+        details = exif.get_ifd(0x8769)   # the Exif details list
+    except Exception:
+        return None
+    stamp = 0   # 0 = the trap's clock wasn't set (same as the trap and log.csv)
+    when = str(details.get(0x9003, "")).strip("\0 ")            # DateTimeOriginal
+    offset = str(details.get(0x9011, "+00:00")).strip("\0 ")    # OffsetTimeOriginal
+    if when:
+        try:
+            stamp = int(datetime.strptime(when + offset, "%Y:%m:%d %H:%M:%S%z").timestamp())
+        except ValueError:
+            pass
+    return {
+        "stamp": stamp,
+        "temperature": exif_number(details.get(0x9400), -40, 80),   # AmbientTemperature
+        "humidity": exif_number(details.get(0x9401), 0, 100),       # Humidity
+    }
+
+
+def photo_time(exif=None):
     """When was the photo taken? Trust the trap's clock if it looks sensible."""
     now = datetime.now(timezone.utc)
-    stamp = header_float("X-Captured-At", 1704067200, (now + timedelta(days=1)).timestamp())
+    if exif and EARLIEST <= exif["stamp"] <= (now + timedelta(days=1)).timestamp():
+        return datetime.fromtimestamp(exif["stamp"], timezone.utc), "trap"
+    stamp = header_float("X-Captured-At", EARLIEST, (now + timedelta(days=1)).timestamp())
     if stamp:
         # "file" = the date on the SD card file (used when the trap's clock wasn't set)
         source = "file" if request.headers.get("X-Time-Source") == "file" else "trap"
@@ -133,11 +175,14 @@ def trash_info(result, blank):
     return {"trashed": False, "trashReason": None}
 
 
-def sighting_id(device, photo_name):
+def sighting_id(device, photo_name, exif=None):
     """The same photo always gets the same ID, whether it arrives from the trap
     or later from the SD card. So it can never be counted twice."""
     if not photo_name:
         return None
+    if exif:
+        # Newer trap photos carry their own time inside, so it's the same however they arrive.
+        return hashlib.sha256(f"{device}/{photo_name}/{exif['stamp']}".encode()).hexdigest()[:24]
     # The trap sends its clock time (or nothing if its clock wasn't set). The website
     # sends the time from the SD card's log.csv as X-Photo-Stamp (0 = clock wasn't set),
     # because it may fill in X-Captured-At from the file's date instead.
@@ -152,8 +197,14 @@ def process_photo(device, source, uploaded_by=None):
     if not data.startswith(b"\xff\xd8"):  # every JPEG starts with these bytes
         abort(400, "Expected a JPEG image")
 
+    try:
+        original = Image.open(io.BytesIO(data))   # only reads the header for now
+    except Exception:
+        abort(400, "Could not read the image")
+    exif = read_exif(original)
+
     photo_name = re.sub(r"[^\w.-]", "", request.headers.get("X-Photo-Name", ""))[:64]
-    doc_id = sighting_id(device, photo_name)
+    doc_id = sighting_id(device, photo_name, exif)
     doc = db.collection("sightings").document(doc_id) if doc_id else db.collection("sightings").document()
     if doc_id and doc.get().exists:
         return "duplicate", None
@@ -161,14 +212,19 @@ def process_photo(device, source, uploaded_by=None):
         return "deleted", None   # was emptied from the Trash; don't bring it back
 
     try:
-        image = ImageOps.exif_transpose(Image.open(io.BytesIO(data)))
+        image = ImageOps.exif_transpose(original)
         image.load()
     except Exception:
         abort(400, "Could not read the image")
 
-    taken, time_source = photo_time()
+    # Time: the EXIF the trap wrote inside the photo comes first, then the request headers.
+    # Weather: the headers (from the trap, or log.csv on the website), else the EXIF.
+    taken, time_source = photo_time(exif)
     temperature = header_float("X-Temperature-C", -40, 80)   # DHT22 range
     humidity = header_float("X-Humidity", 0, 100)
+    if exif:
+        temperature = temperature if temperature is not None else exif["temperature"]
+        humidity = humidity if humidity is not None else exif["humidity"]
     phase, phase_name, illumination = moon_phase(taken)
     blank = is_blank(image)
     if blank:

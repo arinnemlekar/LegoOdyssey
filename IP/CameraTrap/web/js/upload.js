@@ -71,7 +71,7 @@ async function load(files) {
 
   const warnings = [];
   if (!jpgs.length) warnings.push("No .jpg photos found. Did you pick the SD card?");
-  if (jpgs.length && !logFile) warnings.push("No log.csv found, so temperature and humidity will be missing. Pick the whole SD card folder to include it.");
+  if (jpgs.length && !logFile) warnings.push("No log.csv found. Photos from older trap firmware will be missing temperature and humidity (newer photos carry them inside). Pick the whole SD card folder to include it.");
   const noTime = photos.filter(p => !p.time).length;
   if (noTime) warnings.push(`${noTime} photo(s) have no time. They'll get today's date, marked with a *.`);
   const big = photos.filter(p => p.file.size > MAX_BYTES).length;
